@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fretboard Pro | Studio Edition</title>
+<style>
+/* ============================================================ TOKENS (Premium Audio Software Palette) */
+:root {
+  /* Deep graphite & dark space-blue backgrounds */
+  --bg:       #0B0C10;
+  --bg2:      #13151C;
+  --panel:    #1A1C24;
+  --panel2:   #222530;
+  --panel3:   #2C303F;
+  --card:     #1F212C;
+  --card-hover:#282C3A;
+  
+  /* Subtle borders for depth */
+  --border:   rgba(255, 255, 255, 0.05);
+  --border2:  rgba(255, 255, 255, 0.09);
+  --border3:  rgba(255, 255, 255, 0.15);
+  
+  /* Typography */
+  --text:     #F3F4F6;
+  --text2:    #9CA3AF;
+  --text3:    #6B7280;
+  
+  /* Accent colors */
+  --accent:   #6366F1;
+  --accent2:  #818CF8;
+  --accent-g: rgba(99, 102, 241, 0.25);
+  --green:    #10B981;
+  
+  /* Sizing */
+  --radius:   12px;
+  --radius-sm: 8px;
+  --sidebar:  340px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; overflow: hidden; }
+body { 
+  height: 100%; overflow: hidden; min-height: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg); color: var(--text); font-size: 15px; 
+  display: flex; flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================ SCROLLBARS */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); border: 2px solid transparent; background-clip: padding-box; }
+
+/* ============================================================ LAYOUT */
+#app { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+
+/* ============================================================ SIDEBAR */
+#sidebar {
+  width: var(--sidebar); min-width: var(--sidebar); flex-shrink: 0;
+  background: linear-gradient(180deg, #13151C, #0B0C10);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden; min-height: 0;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.4);
+  z-index: 10;
+}
+#sb-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 20px; }
+
+.sb-logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+.sb-logo-row { display: flex; align-items: center; gap: 14px; }
+.sb-logo-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, #6366F1, #A855F7);
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3), inset 0 2px 4px rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+.sb-logo-text .t1 { font-size: 18px; font-weight: 800; letter-spacing: 0.5px; }
+.sb-logo-text .t2 { font-size: 12px; color: var(--text2); margin-top: 3px; font-weight: 500; letter-spacing: 0.3px; }
+
+/* Sections */
+.sb-sec { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+.sb-sec-title {
+  font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 14px;
+}
+
+/* Controls */
+.inst-row, .notate-row { display: flex; gap: 6px; }
+.inst-btn, .notate-btn {
+  flex: 1; padding: 10px 6px; text-align: center;
+  font-size: 13px; font-weight: 600;
+  background: var(--panel2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); color: var(--text2); 
+  cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.inst-btn.active, .notate-btn.active {
+  background: var(--accent); border-color: var(--accent2); color: #fff;
+  box-shadow: 0 4px 12px var(--accent-g), inset 0 1px 2px rgba(255,255,255,0.2);
+}
+.inst-btn:not(.active):hover, .notate-btn:not(.active):hover {
+  background: var(--panel3); color: var(--text); border-color: var(--border3);
+  transform: translateY(-1px);
+}
+
+.sb-select {
+  width: 100%; padding: 12px 32px 12px 14px;
+  background: var(--panel2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-weight: 600;
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  transition: all 0.2s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+.sb-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-g); }
+.sb-select option, .sb-select optgroup { background: var(--panel); color: var(--text); }
+
+/* Tuning */
+.tun-rows { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.tun-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  background: var(--panel2); border: 1px solid var(--border2); border-radius: var(--radius-sm);
+  transition: all 0.2s ease; cursor: text;
+}
+.tun-row:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-g); }
+.tun-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--panel3); border: 1px solid var(--border2);
+  font-size: 11px; font-weight: 800; color: var(--text2);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.tun-inp {
+  flex: 1; background: transparent; border: none;
+  color: var(--text); font-size: 14px; font-weight: 700;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  outline: none; min-width: 0; text-transform: uppercase;
+}
+.tun-inp.invalid { color: #F43F5E; }
+.tun-arrow { 
+  color: var(--text3); font-size: 12px; cursor: pointer; padding: 4px; border-radius: 4px; 
+  transition: all 0.15s; background: transparent;
+}
+.tun-arrow:hover { background: var(--panel3); color: var(--text); }
+
+/* Toggles */
+.select-all-row, .tonic-toggle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.select-all-label, .tonic-toggle-lbl { font-size: 13px; font-weight: 600; color: var(--text2); }
+.toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track {
+  position: absolute; inset: 0; border-radius: 12px;
+  background: #0F1115; border: 1px solid #1A1C23; transition: 0.25s;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05);
+}
+.toggle-switch input:checked + .toggle-track {
+  background: var(--accent); border-color: var(--accent2);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 12px var(--accent-g);
+}
+.toggle-thumb {
+  position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
+  border-radius: 50%; background: linear-gradient(to bottom, #fff, #D1D5DB);
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+.toggle-switch input:checked ~ .toggle-thumb { left: 23px; }
+
+/* Note Chips */
+.note-chips-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.nchip {
+  padding: 10px 2px; text-align: center; font-size: 13px; font-weight: 700;
+  border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border2);
+  transition: all 0.2s; color: var(--text2); background: var(--panel2); user-select: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.nchip:hover { background: var(--panel3); color: var(--text); transform: translateY(-1px); }
+.nchip.on { border-color: transparent; color: #fff; font-weight: 800; }
+
+.chip-quick-btns { display: flex; gap: 6px; margin-top: 10px; }
+.cqb {
+  flex: 1; padding: 8px 4px; text-align: center; font-size: 11px; font-weight: 700;
+  background: var(--panel2); border: 1px solid var(--border2); border-radius: var(--radius-sm);
+  color: var(--text2); cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.cqb:hover { color: var(--text); border-color: var(--border3); background: var(--panel3); }
+
+/* Layout tuning elements */
+.tonic-row, .scale-mode-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.tonic-lbl, .scale-mode-lbl { font-size: 13px; font-weight: 600; color: var(--text2); min-width: 80px; }
+.tonic-toggle { margin-top: 14px; margin-bottom: 0; }
+
+/* Intervals */
+.int-list { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
+.int-item { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; color: var(--text2); }
+.int-dot { 
+  width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.3);
+}
+
+/* Reset Button */
+.reset-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px; margin: 20px 20px;
+  font-size: 13px; font-weight: 700; color: var(--text2); cursor: pointer;
+  border: 1px solid var(--border2); border-radius: var(--radius-sm); background: var(--panel2);
+  transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.reset-btn:hover { color: #F43F5E; border-color: rgba(244, 63, 94, 0.4); background: rgba(244, 63, 94, 0.1); }
+
+/* Dropdown styling */
+.tun-dropdown {
+  position: absolute; z-index: 200;
+  background: rgba(30, 33, 43, 0.95); border: 1px solid var(--border3); border-radius: var(--radius);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 10px;
+  min-width: 180px;
+}
+.tun-dd-item {
+  padding: 8px 10px; text-align: center; font-size: 13px; font-weight: 700;
+  border-radius: 6px; cursor: pointer; color: var(--text2); transition: all 0.15s; font-family: 'SF Mono', monospace;
+}
+.tun-dd-item:hover { background: var(--accent); color: #fff; box-shadow: 0 4px 10px var(--accent-g); }
+.tun-dd-item.cur { color: var(--accent2); background: rgba(129, 140, 248, 0.1); }
+
+/* ============================================================ MAIN CONTENT */
+#main { flex: 1; overflow-y: auto; overflow-x: hidden; background: var(--bg2); display: flex; flex-direction: column; position: relative; }
+
+/* Main Tabs (Hardware style) */
+.main-tabs {
+  display: flex; align-items: center; gap: 10px;
+  padding: 24px 24px 0; border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.main-tab {
+  padding: 12px 24px; font-size: 14px; font-weight: 700;
+  background: var(--panel2); border: 1px solid var(--border2); border-bottom: none;
+  color: var(--text2); cursor: pointer; transition: all 0.2s ease; border-radius: 12px 12px 0 0;
+  position: relative; margin-bottom: -1px;
+}
+.main-tab:hover { color: var(--text); background: var(--panel3); }
+.main-tab.active {
+  color: var(--accent2); background: var(--panel); border-color: var(--border);
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+}
+.main-tab.active::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent); border-radius: 12px 12px 0 0;
+}
+
+/* ============================================================ FRETBOARD PANEL */
+#fb-panel {
+  margin: 24px;
+  background: linear-gradient(145deg, #1A1C24, #121319);
+  border: 1px solid var(--border2); border-radius: 16px; 
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+  flex-shrink: 0; display: flex; flex-direction: column;
+}
+.fb-topbar {
+  display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); gap: 10px;
+  background: rgba(255,255,255,0.02); border-radius: 16px 16px 0 0;
+}
+.fb-view-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; font-size: 13px; font-weight: 700;
+  background: var(--panel2); border: 1px solid var(--border2); border-radius: var(--radius-sm);
+  color: var(--text2); cursor: pointer; transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.fb-view-btn.active {
+  background: var(--accent); color: #fff; border-color: var(--accent2);
+  box-shadow: 0 4px 12px var(--accent-g), inset 0 1px 2px rgba(255,255,255,0.2);
+}
+.fb-view-btn:not(.active):hover { background: var(--panel3); color: var(--text); border-color: var(--border3); transform: translateY(-1px); }
+
+.fb-scroll-wrap { 
+  overflow-x: auto; overflow-y: visible; padding: 10px 20px 30px; 
+  border-radius: 0 0 16px 16px; position: relative;
+}
+
+/* Fretboard table mechanics */
+#fb-table { border-collapse: separate; border-spacing: 0; width: 100%; margin-top: 10px; }
+.fb-head-row th {
+  font-size: 11px; font-weight: 800; color: var(--text3);
+  text-align: center; padding: 0 0 14px; min-width: 60px;
+  font-family: 'SF Mono', 'Fira Code', monospace; letter-spacing: 0.5px;
+}
+.fb-head-row th.th-open { min-width: 72px; color: var(--text2); }
+.fb-head-row th.th-inlay { color: var(--text); }
+
+/* Strings & Frets */
+.fb-string-row td { position: relative; height: 60px; vertical-align: middle; padding: 0; }
+.fb-string-row td.tc-fret { 
+  min-width: 60px; 
+  border-left: 2px solid #2A2D3A; 
+  box-shadow: -1px 0 2px rgba(0,0,0,0.5); 
+}
+.fb-string-row td.tc-open { min-width: 72px; padding-right: 8px; }
+
+/* String Lines (Realistic gradients) */
+.fb-string-row td.tc-fret::before, .fb-string-row td.tc-open::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); z-index: 0;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.6);
+}
+/* Unwound strings (Silver/Steel) */
+.fb-string-row[data-si="0"] td::before { height: 1px; background: linear-gradient(to bottom, #A1A5B5, #5A5F73); }
+.fb-string-row[data-si="1"] td::before { height: 1.5px; background: linear-gradient(to bottom, #A1A5B5, #5A5F73); }
+.fb-string-row[data-si="2"] td::before { height: 2px; background: linear-gradient(to bottom, #A1A5B5, #5A5F73); }
+/* Wound strings (Bronze/Nickel texture) */
+.fb-string-row[data-si="3"] td::before { height: 2.5px; background: repeating-linear-gradient(90deg, #717686, #717686 1px, #4B4F5E 1px, #4B4F5E 2px); }
+.fb-string-row[data-si="4"] td::before { height: 3.5px; background: repeating-linear-gradient(90deg, #717686, #717686 1.5px, #4B4F5E 1.5px, #4B4F5E 3px); }
+.fb-string-row[data-si="5"] td::before { height: 4.5px; background: repeating-linear-gradient(90deg, #717686, #717686 1.5px, #4B4F5E 1.5px, #4B4F5E 3px); }
+.fb-string-row[data-si="6"] td::before { height: 5.5px; background: repeating-linear-gradient(90deg, #717686, #717686 2px, #4B4F5E 2px, #4B4F5E 4px); }
+.fb-string-row[data-si="7"] td::before { height: 6.5px; background: repeating-linear-gradient(90deg, #717686, #717686 2px, #4B4F5E 2px, #4B4F5E 4px); }
+
+/* Nut */
+.fb-string-row td.tc-open::after {
+  content: ''; position: absolute; right: 0; top: 5%; bottom: 5%;
+  width: 8px; border-radius: 3px; z-index: 2;
+  background: linear-gradient(90deg, #1E212B, #373B4D, #1E212B);
+  box-shadow: 2px 0 6px rgba(0,0,0,0.6), inset -1px 0 2px rgba(255,255,255,0.1);
+}
+
+/* Inlays */
+.inlay-wrap { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 0; pointer-events: none; }
+.inlay-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #9CA3AF, #4B5563);
+  box-shadow: inset -1px -1px 3px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* Note Markers (LED / 3D Buttons) */
+.tc-open-label { min-width: 54px; padding-right: 8px; vertical-align: middle; text-align: center; position: relative; }
+.open-note-badge, .nm {
+  position: relative; z-index: 3;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; margin: 0 auto;
+  user-select: none; flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nm { width: 38px; height: 38px; font-size: 11px; }
+
+/* Interactive Clicks */
+.fb-clickable { cursor: pointer; }
+.fb-clickable:hover { transform: scale(1.18) translateY(-2px); z-index: 10; }
+
+/* Solid Notes */
+.nat, .open-note-badge:not(.acc-badge) {
+  color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.nat.fb-clickable:hover, .open-note-badge.fb-clickable:not(.acc-badge):hover {
+  box-shadow: 0 8px 16px rgba(0,0,0,0.5), 0 0 20px var(--nc), inset 0 2px 4px rgba(255,255,255,0.4);
+}
+
+/* Accidentals (Hollow / Dark) */
+.acc, .acc-badge {
+  background: #1A1D24 !important; color: #fff; border: 2px solid var(--nc);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.4);
+}
+.acc.fb-clickable:hover, .acc-badge.fb-clickable:hover {
+  background: var(--nc) !important; color: #fff !important;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.5), 0 0 20px var(--nc);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5); border-color: transparent;
+}
+
+/* Dimmed Notes (When a scale is selected but note is outside scale) */
+.nm.dim-out, .open-note-badge.dim-out { opacity: 0.25; filter: grayscale(80%); }
+
+/* Hiding toggled-off notes (Still catching hovers & clicks!) */
+.nm.hidden, .open-note-badge.hidden { opacity: 0 !important; }
+.nm.hidden:hover, .open-note-badge.hidden:hover { opacity: 0.4 !important; filter: grayscale(0%); transform: scale(1.15); }
+
+/* Tonic Highlight */
+.tonic-ring::after {
+  content: ''; position: absolute; inset: -5px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.9);
+  box-shadow: 0 0 10px rgba(255,255,255,0.5), inset 0 0 5px rgba(255,255,255,0.3);
+  pointer-events: none; animation: pulseRing 2s infinite alternate;
+}
+@keyframes pulseRing {
+  0% { transform: scale(0.98); opacity: 0.8; }
+  100% { transform: scale(1.02); opacity: 1; }
+}
+
+.nm.iv-mode { font-size: 10px; font-weight: 800; letter-spacing: -0.5px; }
+
+/* ============================================================ SCALES PANEL */
+#scales-panel {
+  margin: 0 24px 24px;
+  background: var(--panel); border: 1px solid var(--border2); border-radius: 16px;
+  overflow: hidden; flex-shrink: 0; display: flex; flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.scales-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  font-size: 14px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text);
+  background: linear-gradient(90deg, rgba(255,255,255,0.03), transparent);
+}
+.scales-body { display: flex; height: 420px; }
+
+/* Categories */
+.scales-cats {
+  width: 220px; flex-shrink: 0; border-right: 1px solid var(--border);
+  padding: 12px 0; overflow-y: auto; background: rgba(0,0,0,0.1);
+}
+.cat-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 20px; font-size: 14px; font-weight: 600;
+  color: var(--text2); cursor: pointer; transition: all 0.2s ease;
+}
+.cat-item:hover { background: var(--panel2); color: var(--text); }
+.cat-item.active {
+  color: var(--accent2); background: linear-gradient(90deg, var(--accent-g), transparent);
+  border-left: 3px solid var(--accent); padding-left: 17px;
+}
+.cat-icon { font-size: 18px; flex-shrink: 0; opacity: 0.8; }
+.cat-item.active .cat-icon { opacity: 1; text-shadow: 0 0 10px var(--accent-g); }
+
+/* Grid */
+.scales-grid-wrap { flex: 1; overflow-y: auto; padding: 20px; }
+.scales-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+
+.scale-card {
+  background: var(--card); border: 1px solid var(--border2); border-radius: 12px;
+  padding: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.scale-card:hover { border-color: var(--border3); background: var(--card-hover); transform: translateY(-4px); box-shadow: 0 12px 20px rgba(0,0,0,0.4); }
+.scale-card.active {
+  border-color: var(--accent); background: rgba(99, 102, 241, 0.1);
+  box-shadow: 0 8px 20px var(--accent-g);
+}
+.scale-card.active::after { content: '★'; position: absolute; top: 14px; right: 14px; font-size: 14px; color: var(--accent2); text-shadow: 0 0 8px var(--accent-g); }
+.sc-name { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 8px; letter-spacing: 0.2px; }
+.sc-formula { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+.sc-step {
+  font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px;
+  background: var(--panel3); color: var(--text2); box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
+}
+.sc-step.root { background: var(--accent); color: #fff; box-shadow: 0 2px 6px var(--accent-g); }
+.sc-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+/* Search */
+.scales-search { padding: 16px 20px; border-bottom: 1px solid var(--border); position: relative; background: var(--panel); }
+.scales-search input {
+  width: 100%; padding: 12px 16px 12px 40px;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-sm);
+  color: var(--text); font-size: 14px; transition: all 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.scales-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-g), inset 0 2px 4px rgba(0,0,0,0.2); }
+.scales-search .sico { position: absolute; left: 32px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text3); pointer-events: none; }
+
+/* Scale Info */
+.scale-info-panel {
+  width: 280px; flex-shrink: 0; border-left: 1px solid var(--border);
+  padding: 20px; overflow-y: auto; display: none; background: rgba(0,0,0,0.1);
+}
+.scale-info-panel.visible { display: block; animation: fadeInRight 0.3s ease; }
+@keyframes fadeInRight { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+.si-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+.si-section-lbl { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); margin: 20px 0 10px; }
+.si-formula-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.si-step {
+  width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: var(--text2); background: var(--panel3);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.2);
+}
+.si-step.s-root { background: rgba(244, 63, 94, 0.2); color: #FDA4AF; border: 1px solid rgba(244, 63, 94, 0.3); }
+.si-step.s-2 { background: rgba(249, 115, 22, 0.2); color: #FDBA74; }
+.si-step.s-3 { background: rgba(234, 179, 8, 0.2); color: #FDE047; }
+.si-step.s-4 { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; }
+.si-step.s-5 { background: rgba(14, 165, 233, 0.2); color: #7DD3FC; }
+.si-step.s-6 { background: rgba(99, 102, 241, 0.2); color: #A5B4FC; }
+.si-step.s-7 { background: rgba(168, 85, 247, 0.2); color: #D8B4FE; }
+
+.si-notes-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.si-note-pill { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+.si-note-pill.acc { background: transparent !important; border: 2px solid; }
+.si-desc { font-size: 14px; color: var(--text2); line-height: 1.6; margin-top: 5px; }
+.si-examples { margin-top: 5px; }
+.si-ex-item { font-size: 13px; color: var(--text2); padding: 4px 0; display: flex; gap: 8px; }
+.si-ex-item::before { content: '•'; color: var(--accent); font-weight: bold; }
+
+/* ============================================================ KEY FINDER TAB */
+#kf-panel { margin: 0 24px 24px; background: var(--panel); border: 1px solid var(--border2); border-radius: 16px; display: none; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+#kf-panel.active { display: flex; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.kf-topbar { display: flex; align-items: center; gap: 14px; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; background: linear-gradient(90deg, rgba(255,255,255,0.03), transparent); }
+.kf-topbar-title { font-size: 14px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text); margin-right: auto; }
+.kf-clear-btn { padding: 10px 20px; font-size: 13px; font-weight: 700; background: var(--panel2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text2); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.kf-clear-btn:hover { background: rgba(244, 63, 94, 0.15); color: #F43F5E; border-color: rgba(244, 63, 94, 0.4); transform: translateY(-1px); }
+
+.kf-body { display: flex; flex: 1; border-bottom: 1px solid var(--border); overflow: hidden; min-height: 0; }
+.kf-left { width: 440px; flex-shrink: 0; border-right: 1px solid var(--border); padding: 24px; overflow-y: auto; display: flex; flex-direction: column; background: rgba(0,0,0,0.1); }
+.kf-right { flex: 1; overflow-y: auto; padding: 24px; }
+.kf-fret-row { flex-shrink: 0; padding: 20px 24px 30px; overflow-y: visible; min-height: 0; display: flex; flex-direction: column; background: linear-gradient(145deg, #1A1C24, #121319); border-radius: 0 0 16px 16px; }
+
+/* Piano */
+.kf-piano { position: relative; height: 140px; user-select: none; margin-bottom: 20px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)); }
+.kf-piano-wrap { display: flex; position: relative; height: 100%; }
+.piano-white {
+  position: relative; width: 52px; height: 140px;
+  background: linear-gradient(to bottom, #F9FAFB, #D1D5DB);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -4px 6px rgba(0,0,0,0.15), 1px 2px 5px rgba(0,0,0,0.4);
+  border: 1px solid #9CA3AF; border-radius: 0 0 6px 6px; cursor: pointer; transition: all 0.15s; z-index: 1; flex-shrink: 0;
+}
+.piano-white:hover { background: linear-gradient(to bottom, #fff, #E5E7EB); }
+.piano-white.on {
+  background: linear-gradient(to bottom, #EFF6FF, #BFDBFE); border-color: var(--accent);
+  box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.3), inset 0 -2px 4px rgba(0,0,0,0.1);
+}
+.piano-white .pw-label { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 800; color: #4B5563; pointer-events: none; }
+.piano-white.on .pw-label { color: var(--accent); }
+
+.piano-black {
+  position: absolute; width: 32px; height: 90px;
+  background: linear-gradient(to bottom, #262A36, #111827);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), inset 0 -4px 6px rgba(0,0,0,0.6), 2px 4px 8px rgba(0,0,0,0.5);
+  border: 1px solid #000; border-radius: 0 0 4px 4px; cursor: pointer; z-index: 2; transition: all 0.15s; top: 0;
+}
+.piano-black:hover { background: linear-gradient(to bottom, #373B4D, #1F2937); }
+.piano-black.on {
+  background: linear-gradient(to bottom, #4338CA, #1E1B4B); border-color: #6366F1;
+  box-shadow: inset 0 0 15px rgba(99, 102, 241, 0.5), 0 4px 10px rgba(99,102,241,0.4);
+}
+.piano-black .pb-label { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 800; color: #9CA3AF; pointer-events: none; }
+.piano-black.on .pb-label { color: #fff; text-shadow: 0 0 5px #fff; }
+
+.kf-fb-wrap { overflow: visible; width: 100%; min-width: max-content; padding-bottom: 20px; padding-top: 10px; }
+#kf-fb-table { border-collapse: separate; border-spacing: 0; width: 100%; margin-top: 4px; }
+#kf-fb-table .fb-head-row th { min-width: 48px; font-size: 11px; padding: 4px 0 14px; font-weight: 800; letter-spacing: 0.5px; }
+#kf-fb-table .fb-head-row th.th-open { min-width: 44px; }
+#kf-fb-table .fb-string-row td.tc-fret { min-width: 48px; }
+#kf-fb-table .fb-string-row td { height: 52px; }
+
+/* KF Fretboard Notes (Hide by default, show ghost on hover) */
+.nm.kf-nm, .open-note-badge.kf-badge { opacity: 0; transition: all 0.2s ease; }
+.nm.kf-nm:hover, .open-note-badge.kf-badge:hover { opacity: 0.4; transform: scale(1.15); }
+.nm.kf-nm.kf-selected, .open-note-badge.kf-badge.kf-selected { opacity: 1 !important; transform: scale(1); }
+
+.kf-section-lbl { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 16px; }
+.kf-sel-row { display: flex; align-items: flex-start; gap: 14px; margin-top: 20px; flex-wrap: wrap; }
+.kf-sel-label { font-size: 13px; font-weight: 600; color: var(--text2); white-space: nowrap; padding-top: 6px; }
+.kf-selected-notes { display: flex; flex-wrap: wrap; gap: 8px; min-height: 32px; align-items: center; }
+.kf-sel-pill { padding: 6px 14px; border-radius: 16px; font-size: 13px; font-weight: 800; color: #fff; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.kf-sel-pill:hover { transform: scale(1.05) translateY(-2px); filter: brightness(1.2); }
+.kf-sel-empty { font-size: 13px; color: var(--text3); font-style: italic; font-weight: 500; }
+
+.kf-results-section { margin-bottom: 24px; }
+.kf-results-title { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.kf-result-card { background: var(--card); border: 1px solid var(--border2); border-radius: 12px; padding: 16px; margin-bottom: 12px; transition: all 0.25s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+.kf-result-card:hover { border-color: var(--border3); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.3); background: var(--card-hover); }
+.kf-result-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.kf-result-name { font-size: 15px; font-weight: 800; color: var(--text); flex: 1; letter-spacing: 0.2px; }
+.kf-result-mode { font-size: 13px; color: var(--text2); font-weight: 500; }
+.kf-pct-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 800; background: rgba(99, 102, 241, 0.15); color: var(--accent2); flex-shrink: 0; border: 1px solid rgba(99, 102, 241, 0.3); }
+.kf-pct-badge.perfect { background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.3); }
+.kf-note-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.kf-note-tag { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+.kf-note-match { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.2); }
+.kf-note-missing { background: rgba(244, 63, 94, 0.15); color: #FDA4AF; border: 1px solid rgba(244, 63, 94, 0.2); }
+.kf-note-extra { background: rgba(249, 115, 22, 0.15); color: #FDBA74; border: 1px solid rgba(249, 115, 22, 0.2); }
+.kf-note-label { font-size: 14px; font-weight: 800; color: var(--text3); margin-right: 4px; }
+.kf-empty-msg { font-size: 15px; font-weight: 500; color: var(--text3); padding: 40px 0; text-align: center; }
+
+.kf-collapse-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 16px 0 8px; border-top: 1px solid var(--border); margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--text2); user-select: none; transition: color 0.2s; }
+.kf-collapse-toggle:hover { color: var(--text); }
+.kf-collapse-arrow { font-size: 10px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; color: var(--text3); }
+.kf-collapse-arrow.open { transform: rotate(180deg); color: var(--accent2); }
+.kf-collapse-body { display: none; margin-top: 12px; }
+.kf-collapse-body.open { display: block; animation: fadeIn 0.3s ease; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<aside id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-row">
+      <div class="sb-logo-icon">🎸</div>
+      <div class="sb-logo-text">
+        <div class="t1">Fretboard Pro</div>
+        <div class="t2">Studio Edition</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="sb-scroll">
+    <div class="sb-sec">
+      <div class="sb-sec-title">Инструмент</div>
+      <div class="inst-row" id="instRow">
+        <div class="inst-btn active" data-s="6">6 струн</div>
+        <div class="inst-btn" data-s="7">7 струн</div>
+        <div class="inst-btn" data-s="8">8 струн</div>
+      </div>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-sec-title">Строй (сверху вниз)</div>
+      <select class="sb-select" id="presetSel" style="margin-bottom:12px"></select>
+      <div class="tun-rows" id="tunGrid"></div>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-sec-title">Обозначение</div>
+      <div class="notate-row" id="notateRow">
+        <div class="notate-btn active" data-m="sharps">Диезы (♯)</div>
+        <div class="notate-btn" data-m="flats">Бемоли (♭)</div>
+      </div>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-sec-title">Отображать ноты</div>
+      <div class="select-all-row">
+        <span class="select-all-label">Выбрать все</span>
+        <label class="toggle-switch" id="allToggle">
+          <input type="checkbox" id="allToggleChk" checked>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="note-chips-grid" id="noteChipsGrid"></div>
+      <div class="chip-quick-btns">
+        <div class="cqb" id="qAll">Все</div>
+        <div class="cqb" id="qNone">Сброс</div>
+        <div class="cqb" id="qNat">Осн.</div>
+      </div>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-sec-title">Тональность и лад</div>
+      <div class="tonic-row">
+        <span class="tonic-lbl">Тональность</span>
+        <select class="sb-select" id="tonicSel"></select>
+      </div>
+      <div class="scale-mode-row" style="margin-top:8px">
+        <span class="scale-mode-lbl">Тип лада</span>
+        <select class="sb-select" id="scaleQuickSel"></select>
+      </div>
+      <div class="tonic-toggle">
+        <span class="tonic-toggle-lbl">Показывать тонику</span>
+        <label class="toggle-switch" id="tonicToggle">
+          <input type="checkbox" id="tonicToggleChk" checked>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-sec-title">Интервалы лада</div>
+      <div class="int-list" id="intList"></div>
+    </div>
+
+    <div class="reset-btn" id="resetBtn">
+      <span>↺</span> Сбросить всё
+    </div>
+  </div>
+</aside>
+
+<main id="main">
+  <div class="main-tabs">
+    <div class="main-tab active" data-tab="grif">🎸 Гриф</div>
+    <div class="main-tab" data-tab="kf">🔍 Поиск тональности</div>
+  </div>
+
+  <div id="fb-panel">
+    <div class="fb-topbar">
+      <div class="fb-view-btn active" data-vm="notes" id="vbGrif">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="2" rx="1" fill="currentColor"/><rect x="1" y="7" width="14" height="2" rx="1" fill="currentColor"/><rect x="1" y="10" width="14" height="2" rx="1" fill="currentColor"/></svg>
+        Гриф
+      </div>
+      <div class="fb-view-btn" data-vm="scale" id="vbNotes">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h2M11 8h2M8 3v2M8 11v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Ноты
+      </div>
+      <div class="fb-view-btn" data-vm="intervals" id="vbIntervals">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 12l4-8 4 8M2 9h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 4v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Интервалы
+      </div>
+    </div>
+    <div class="fb-scroll-wrap">
+      <table id="fb-table">
+        <thead id="fb-head"></thead>
+        <tbody id="fb-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="scales-panel">
+    <div class="scales-header">Лады и тональности</div>
+    <div class="scales-body">
+      <div class="scales-cats" id="scaleCats"></div>
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <div class="scales-search">
+          <span class="sico">🔍</span>
+          <input type="text" id="scaleSearchInp" placeholder="Поиск гаммы или лада...">
+        </div>
+        <div class="scales-grid-wrap" id="scalesGridWrap">
+          <div class="scales-grid" id="scalesGrid"></div>
+        </div>
+      </div>
+      <div class="scale-info-panel" id="scaleInfoPanel"></div>
+    </div>
+  </div>
+
+  <div id="kf-panel">
+    <div class="kf-topbar">
+      <span class="kf-topbar-title">Поиск тональности</span>
+      <div class="kf-clear-btn" id="kf-clear-btn">Очистить всё</div>
+    </div>
+    <div class="kf-body">
+      <div class="kf-left">
+        <div class="kf-section-lbl">Пианино</div>
+        <div id="kf-piano-wrap"></div>
+        <div class="kf-sel-row">
+          <span class="kf-sel-label">Выбранные ноты:</span>
+          <div id="kf-sel-notes" class="kf-selected-notes"><span class="kf-sel-empty">Нажмите на клавиши или ноты</span></div>
+        </div>
+      </div>
+      <div class="kf-right" id="kf-results"></div>
+    </div>
+    <div class="kf-fret-row">
+      <div class="kf-section-lbl" style="margin-bottom:8px">Гриф</div>
+      <div id="kf-fret-wrap" style="overflow-x:auto;overflow-y:visible;min-height:0;padding-bottom:20px"></div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+'use strict';
+/* ================================================================ MUSIC ENGINE */
+const CHR_S = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const CHR_F = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+function n2pc(n){
+  n=n.trim();
+  let i=CHR_S.indexOf(n); if(i!==-1)return i;
+  i=CHR_F.indexOf(n);     if(i!==-1)return i;
+  const al={'B#':0,'E#':5,'Cb':11,'Fb':4};
+  return al[n]??-1;
+}
+function pc2n(pc,flat){return(flat?CHR_F:CHR_S)[pc]}
+function fretPc(openPc,fret){return(openPc+fret)%12}
+
+const NATS=new Set([0,2,4,5,7,9,11]);
+const PARENT=[0,0,2,2,4,5,5,7,7,9,9,11];
+function isNat(pc){return NATS.has(pc)}
+function parentNat(pc){return PARENT[pc]}
+
+/* Premium palette */
+const NOTE_COLORS={
+  0:'#F43F5E', /* Rose Red */
+  2:'#F97316', /* Vibrant Orange */
+  4:'#EAB308', /* Warm Yellow */
+  5:'#10B981', /* Emerald Green */
+  7:'#0EA5E9', /* Sky Blue */
+  9:'#6366F1', /* Indigo */
+  11:'#A855F7' /* Purple */
+};
+function nColor(pc){return NOTE_COLORS[parentNat(pc)]??'#888'}
+
+const INT_NAMES=['1','b2','2','b3','3','4','#4','5','b6','6','b7','7'];
+function interval(rootPc,pc){return INT_NAMES[(pc-rootPc+12)%12]}
+
+/* ================================================================ SCALE DB */
+const SCALE_DB=[
+  {id:'ionian',    cat:'Основные',  name:'Ионийский (мажор)',          alt:'Major',                 iv:[0,2,4,5,7,9,11], desc:'Самый яркий и стабильный лад. Основа мажорной музыки.',    ex:['Happy Birthday','До мажор гамма','Многие поп-песни']},
+  {id:'dorian',    cat:'Основные',  name:'Дорийский',                  alt:'Dorian',                iv:[0,2,3,5,7,9,10], desc:'Минорный с натуральной 6-й. Джазовый, плавный.',           ex:['Scarborough Fair','So What (Miles Davis)']},
+  {id:'phrygian',  cat:'Основные',  name:'Фригийский',                 alt:'Phrygian',              iv:[0,1,3,5,7,8,10], desc:'Тёмный испанский лад. Характерная низкая 2-я ступень.',    ex:['Металл, фламенко']},
+  {id:'lydian',    cat:'Основные',  name:'Лидийский',                  alt:'Lydian',                iv:[0,2,4,6,7,9,11], desc:'Мечтательный, парящий. Характерный #4.',                   ex:['The Simpsons theme','Nhiều phim sci-fi']},
+  {id:'mixolyd',   cat:'Основные',  name:'Миксолидийский',             alt:'Mixolydian',            iv:[0,2,4,5,7,9,10], desc:'Мажор с b7. Рок, блюз, кельтская музыка.',                ex:['Norwegian Wood','Sweet Home Chicago']},
+  {id:'aeolian',   cat:'Основные',  name:'Эолийский (минор)',          alt:'Natural minor',         iv:[0,2,3,5,7,8,10], desc:'Грустный, задумчивый. Натуральный минор.',                 ex:['Stairway to Heaven','Для Элизы']},
+  {id:'locrian',   cat:'Основные',  name:'Локрийский',                 alt:'Locrian',               iv:[0,1,3,5,6,8,10], desc:'Напряжённый, нестабильный. Редко используется соло.',      ex:['Металл, авангард']},
+  {id:'harm_min',  cat:'Церковные', name:'Гармонический минор',        alt:'Harmonic minor',        iv:[0,2,3,5,7,8,11], desc:'Экзотический, восточный. Увеличенная секунда VII-I.',      ex:['Symphony No.40 (Mozart)','Металл, классика']},
+  {id:'mel_min',   cat:'Церковные', name:'Мелодический минор',         alt:'Jazz minor',            iv:[0,2,3,5,7,9,11], desc:'Мягкий минор с натуральной 6 и 7. Джаз, фьюжн.',          ex:['Джаз, современная музыка']},
+  {id:'harm_maj',  cat:'Церковные', name:'Гармонический мажор',        alt:'Harmonic major',        iv:[0,2,4,5,7,8,11], desc:'Мажор с b6. Романтическое звучание.',                     ex:['Романтика, джаз']},
+  {id:'neapol_m',  cat:'Церковные', name:'Неаполитанский минор',       alt:'Neapolitan minor',      iv:[0,1,3,5,7,8,11], desc:'Трагический, оперный.',                                   ex:['Итальянская опера']},
+  {id:'neapol_M',  cat:'Церковные', name:'Неаполитанский мажор',       alt:'Neapolitan major',      iv:[0,1,3,5,7,9,11], desc:'Необычный мажор с b2.',                                   ex:['Классика, джаз']},
+  {id:'dbl_harm',  cat:'Церковные', name:'Двойной гарм. минор',        alt:'Double harmonic minor', iv:[0,2,3,6,7,8,11], desc:'Венгерская гамма. Два увеличенных хода.',                  ex:['Венгерская, цыганская']},
+  {id:'maj_pent',  cat:'Пентатоники',name:'Пентатоника мажор',         alt:'Major pentatonic',      iv:[0,2,4,7,9],      desc:'Универсальная. Везде — рок, поп, фолк, джаз.',            ex:['Amazing Grace','My Girl']},
+  {id:'min_pent',  cat:'Пентатоники',name:'Пентатоника минор',         alt:'Minor pentatonic',      iv:[0,3,5,7,10],     desc:'Классика блюза и рока. Нота №1 для гитаристов.',          ex:['Smoke on the Water','Back in Black']},
+  {id:'egypt',     cat:'Пентатоники',name:'Египетская',                alt:'Egyptian',              iv:[0,2,5,7,10],     desc:'Подвешенное восточное звучание.',                         ex:['Восточная, медитативная']},
+  {id:'hirajoshi', cat:'Пентатоники',name:'Хирадзёси',                 alt:'Hirajoshi',             iv:[0,2,3,7,8],      desc:'Японская. Характерный неустойчивый колорит.',             ex:['Японская']},
+  {id:'kumoi',     cat:'Пентатоники',name:'Кумой',                     alt:'Kumoi',                 iv:[0,2,3,7,9],      desc:'Японская. Меланхоличная и медитативная.',                 ex:['Японская, дзен']},
+  {id:'iwata',     cat:'Пентатоники',name:'Ивата',                     alt:'Iwata',                 iv:[0,1,5,7,8],      desc:'Японская. Очень тёмная и тревожная.',                     ex:['Японская']},
+  {id:'blu_min',   cat:'Блюзовые',  name:'Блюзовая минорная',          alt:'Minor blues',           iv:[0,3,5,6,7,10],   desc:'Минорная пентатоника с b5. Классика блюза.',              ex:['Blues, рок, джаз']},
+  {id:'blu_maj',   cat:'Блюзовые',  name:'Блюзовая мажорная',          alt:'Major blues',           iv:[0,2,3,4,7,9],    desc:'Светлее минорной. Рок-н-ролл, кантри-блюз.',             ex:['Рок-н-ролл, кантри']},
+  {id:'bepop_m',   cat:'Джазовые',  name:'Бибоп мажор',                alt:'Bebop major',           iv:[0,2,4,5,7,8,9,11],desc:'8-нотная. Плавное голосоведение.',                       ex:['Бибоп, джаз']},
+  {id:'bepop_d',   cat:'Джазовые',  name:'Бибоп доминант',             alt:'Bebop dominant',        iv:[0,2,4,5,7,9,10,11],desc:'8-нотная. Классика бибопа.',                            ex:['Бибоп']},
+  {id:'altered',   cat:'Джазовые',  name:'Альтерированная',            alt:'Altered / Super Locrian',iv:[0,1,3,4,6,8,10],desc:'На доминанте. Максимальный диссонанс.',                  ex:['Джаз, фьюжн']},
+  {id:'lyd_dom',   cat:'Джазовые',  name:'Лидийский доминант',         alt:'Lydian dominant',       iv:[0,2,4,6,7,9,10], desc:'#4 + b7. Насыщенное джазовое звучание.',                  ex:['Джаз, фьюжн']},
+  {id:'wh_tone',   cat:'Джазовые',  name:'Целотоновая',                alt:'Whole tone',            iv:[0,2,4,6,8,10],   desc:'Только целые тона. Плывущее, нецентрированное.',          ex:['Импрессионизм, джаз']},
+  {id:'wh_half',   cat:'Джазовые',  name:'Уменьшённая W-H',            alt:'Whole-Half diminished', iv:[0,2,3,5,6,8,9,11],desc:'Симметричная 8-нотная. Паттерны тон-полутон.',           ex:['Джаз, бибоп']},
+  {id:'hf_whole',  cat:'Джазовые',  name:'Уменьшённая H-W',            alt:'Half-Whole diminished', iv:[0,1,3,4,6,7,9,10],desc:'Симметричная 8-нотная. Полутон-тон.',                    ex:['Джаз, металл']},
+  {id:'arabian',   cat:'Арабские',  name:'Арабская',                   alt:'Arabic / Hijaz',        iv:[0,2,4,5,6,8,10], desc:'Ориентальная. Экзотический восточный колорит.',           ex:['Арабская, восточная']},
+  {id:'persian',   cat:'Арабские',  name:'Персидская',                 alt:'Persian',               iv:[0,1,4,5,6,8,11], desc:'Два увеличенных хода. Загадочная, тёмная.',              ex:['Персидская, металл']},
+  {id:'phryg_dom', cat:'Арабские',  name:'Испанская (фриг. дом.)',      alt:'Phrygian Dominant',     iv:[0,1,4,5,7,8,10], desc:'b2 + большая терция. Фламенко, металл.',                  ex:['Фламенко, металл']},
+  {id:'byzantine', cat:'Арабские',  name:'Византийская',               alt:'Byzantine',             iv:[0,1,4,5,7,8,11], desc:'Два увеличенных хода. Церковная, торжественная.',          ex:['Православная, восточная']},
+  {id:'hung_min',  cat:'Арабские',  name:'Венгерский минор',           alt:'Hungarian minor',       iv:[0,2,3,6,7,8,11], desc:'Страстная цыганская гамма. Экзотика.',                    ex:['Венгерская, цыганская, металл']},
+  {id:'gypsy',     cat:'Арабские',  name:'Цыганская',                  alt:'Gypsy',                 iv:[0,2,3,6,7,8,10], desc:'Страстная и меланхоличная. Цыганская традиция.',          ex:['Фламенко, цыганская']},
+  {id:'prometheus',cat:'Экзотические',name:'Прометеева',               alt:'Prometheus / Mystic',   iv:[0,2,4,6,9,10],   desc:'Скрябин. Мистическая, парящая.',                         ex:['Скрябин, авангард']},
+  {id:'enigmatic', cat:'Экзотические',name:'Энигматическая',           alt:'Enigmatic',             iv:[0,1,4,6,8,10,11],desc:'Придуманная Верди. Загадочная.',                          ex:['Верди, авангард']},
+  {id:'ukr_dor',   cat:'Экзотические',name:'Украинский дорийский',     alt:'Ukrainian Dorian',      iv:[0,2,3,6,7,9,10], desc:'Меланхоличный народный колорит.',                        ex:['Украинская, балканская']},
+  {id:'romanian',  cat:'Экзотические',name:'Румынский минор',          alt:'Romanian minor',        iv:[0,2,3,6,7,8,10], desc:'Балканская народная музыка.',                             ex:['Балканская']},
+  {id:'acoustic',  cat:'Экзотические',name:'Акустическая',             alt:'Acoustic scale',        iv:[0,2,4,6,7,9,10], desc:'Обертоновая гамма. Открытое звучание.',                   ex:['Фьюжн, кантри']},
+  {id:'in_scale',  cat:'Экзотические',name:'In (японская)',             alt:'Japanese In',           iv:[0,1,5,7,8],      desc:'Японская. Тёмная, загадочная.',                           ex:['Японская']},
+  {id:'yo',        cat:'Экзотические',name:'Yo (японская)',             alt:'Yo scale',              iv:[0,2,5,7,9],      desc:'Японская пентатоника. Светлая.',                          ex:['Японская, фольклор']},
+  {id:'chromatic', cat:'Пользовательские',name:'Хроматическая',        alt:'Chromatic',             iv:[0,1,2,3,4,5,6,7,8,9,10,11],desc:'Все 12 полутонов.',                             ex:['Все жанры']},
+];
+
+const CAT_ICONS={ 'Основные':'🎵','Церковные':'🎼','Пентатоники':'🖐','Блюзовые':'🎸', 'Джазовые':'🎷','Арабские':'🌙','Экзотические':'🌏','Пользовательские':'⚙️' };
+const CATS=[...new Set(SCALE_DB.map(s=>s.cat))];
+
+/* ================================================================ PRESETS */
+const PRESETS={
+  6:[
+    {label:'Standard — E A D G B E',  t:['E','A','D','G','B','E']},
+    {label:'Drop D — D A D G B E',    t:['D','A','D','G','B','E']},
+    {label:'Drop C — C G C F A D',    t:['C','G','C','F','A','D']},
+    {label:'Drop B — B F# B E G# C#', t:['B','F#','B','E','G#','C#']},
+    {label:'D Стандарт — D G C F A D',t:['D','G','C','F','A','D']},
+    {label:'C Стандарт — C F A# D# G C',t:['C','F','A#','D#','G','C']},
+    {label:'Open D — D A D F# A D',   t:['D','A','D','F#','A','D']},
+    {label:'Open G — D G D G B D',    t:['D','G','D','G','B','D']},
+    {label:'Open E — E B E G# B E',   t:['E','B','E','G#','B','E']},
+  ],
+  7:[
+    {label:'Стандарт — B E A D G B E',  t:['B','E','A','D','G','B','E']},
+    {label:'Drop A — A E A D G B E',    t:['A','E','A','D','G','B','E']},
+    {label:'A Стандарт — A D G C F A D',t:['A','D','G','C','F','A','D']},
+  ],
+  8:[
+    {label:'Стандарт — F# B E A D G B E',t:['F#','B','E','A','D','G','B','E']},
+    {label:'Drop E — E B E A D G B E',   t:['E','B','E','A','D','G','B','E']},
+  ]
+};
+
+/* ================================================================ STATE */
+const ST={
+  numStrings:6, tuning:['E','A','D','G','B','E'], flat:false, activeNotes:new Set([0,1,2,3,4,5,6,7,8,9,10,11]),
+  tonicPc:null, scaleId:null, scalePcs:null, showTonic:true, viewMode:'notes', activeCat:'Основные', numFrets:24,
+};
+
+/* ================================================================ HELPERS */
+const $=id=>document.getElementById(id);
+function mk(tag,cls=''){const e=document.createElement(tag);if(cls)e.className=cls;return e}
+function fmt(n){return n.replace('#','♯').replace('b','♭')}
+
+/* ================================================================ INIT */
+function init(){
+  initInstTabs(); initNotation(); initViewBtns(); initMainTabs(); initKFInputBtns();
+  buildPresetSel(); buildTunGrid(); buildTonicSel(); buildScaleQuickSel();
+  buildNoteChips(); buildIntList(); buildCatList(); buildScalesGrid('','Основные'); buildScaleInfoPanel(null);
+  $('scaleSearchInp').addEventListener('input',e=>buildScalesGrid(e.target.value,ST.activeCat));
+  
+  $('qAll').onclick=()=>{ST.activeNotes=new Set([0,1,2,3,4,5,6,7,8,9,10,11]);buildNoteChips();refreshFB()};
+  $('qNone').onclick=()=>{ST.activeNotes=new Set();buildNoteChips();refreshFB()};
+  $('qNat').onclick=()=>{ST.activeNotes=new Set([0,2,4,5,7,9,11]);buildNoteChips();refreshFB()};
+  $('allToggleChk').addEventListener('change',e=>{ ST.activeNotes=e.target.checked?new Set([0,1,2,3,4,5,6,7,8,9,10,11]):new Set(); buildNoteChips();refreshFB(); });
+  $('tonicToggleChk').addEventListener('change',e=>{ST.showTonic=e.target.checked;refreshFB()});
+  $('resetBtn').onclick=resetAll;
+  
+  enableFBClicks(); buildKFPiano(); buildKFFret(); renderKFSelectedNotes(); refreshFB();
+}
+
+function initInstTabs(){
+  document.querySelectorAll('.inst-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.inst-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); switchInst(parseInt(b.dataset.s));
+    });
+  });
+}
+
+function switchInst(n){ ST.numStrings=n; ST.tuning=[...PRESETS[n][0].t]; buildPresetSel();buildTunGrid();refreshFB();buildKFFret(); }
+
+function initNotation(){
+  document.querySelectorAll('.notate-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.notate-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); ST.flat=b.dataset.m==='flats';
+      buildTonicSel();buildScaleQuickSel();buildNoteChips();buildIntList();refreshFB();
+      if(ST.scaleId)buildScaleInfoPanel(SCALE_DB.find(s=>s.id===ST.scaleId));
+    });
+  });
+}
+
+function initViewBtns(){
+  document.querySelectorAll('.fb-view-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.fb-view-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); ST.viewMode=b.dataset.vm; refreshFB();
+    });
+  });
+}
+
+function buildPresetSel(){
+  const sel=$('presetSel'); sel.innerHTML='';
+  const bl=mk('option');bl.value='';bl.textContent='— Выбрать пресет —';sel.appendChild(bl);
+  PRESETS[ST.numStrings].forEach((p,i)=>{
+    const o=mk('option');o.value=i;o.textContent=p.label; if(i===0)o.selected=true;sel.appendChild(o);
+  });
+  sel.onchange=()=>{
+    const idx=parseInt(sel.value);if(isNaN(idx))return;
+    ST.tuning=[...PRESETS[ST.numStrings][idx].t]; buildTunGrid();refreshFB();buildKFFret();
+  };
+}
+
+function buildTunGrid(){
+  const grid=$('tunGrid');grid.innerHTML='';
+  for(let d=0;d<ST.numStrings;d++){
+    const ai=ST.numStrings-1-d; const row=mk('div','tun-row');
+    const num=mk('div','tun-num');num.textContent=d+1;
+    const inp=mk('input','tun-inp'); inp.type='text';inp.value=ST.tuning[ai];
+    inp.addEventListener('input',()=>{
+      const v=inp.value.trim(),pc=n2pc(v);
+      if(pc!==-1){inp.classList.remove('invalid');ST.tuning[ai]=v;refreshFB();buildKFFret()} else inp.classList.add('invalid');
+    });
+    const arr=mk('div','tun-arrow');arr.textContent='▾'; arr.title='Выбрать ноту';
+    arr.addEventListener('click',e=>{e.stopPropagation();buildTunDropdown(arr,ai);});
+    row.appendChild(num);row.appendChild(inp);row.appendChild(arr); grid.appendChild(row);
+  }
+}
+
+function buildTonicSel(){
+  const sel=$('tonicSel');sel.innerHTML='';
+  const bl=mk('option');bl.value='';bl.textContent='— Нет тоники —';sel.appendChild(bl);
+  const notes=ST.flat?CHR_F:CHR_S;
+  notes.forEach((n,pc)=>{ const o=mk('option');o.value=pc;o.textContent=fmt(n); if(ST.tonicPc===pc)o.selected=true; sel.appendChild(o); });
+  sel.onchange=()=>{ ST.tonicPc=sel.value===''?null:parseInt(sel.value); applyScale();buildIntList();refreshFB(); if(ST.scaleId)buildScaleInfoPanel(SCALE_DB.find(s=>s.id===ST.scaleId)); };
+}
+
+function buildScaleQuickSel(){
+  const sel=$('scaleQuickSel');sel.innerHTML='';
+  const bl=mk('option');bl.value='';bl.textContent='— Без гаммы —';sel.appendChild(bl);
+  const cats={}; SCALE_DB.forEach(s=>{(cats[s.cat]||(cats[s.cat]=[])).push(s)});
+  Object.entries(cats).forEach(([cat,scales])=>{
+    const grp=mk('optgroup');grp.label=cat;
+    scales.forEach(s=>{ const o=mk('option');o.value=s.id;o.textContent=s.name; if(ST.scaleId===s.id)o.selected=true; grp.appendChild(o); });
+    sel.appendChild(grp);
+  });
+  sel.onchange=()=>{
+    ST.scaleId=sel.value||null; applyScale();buildIntList();refreshFB();
+    buildScaleInfoPanel(ST.scaleId?SCALE_DB.find(s=>s.id===ST.scaleId):null);
+    if(ST.scaleId){ const s=SCALE_DB.find(x=>x.id===ST.scaleId); if(s){ST.activeCat=s.cat;buildCatList();buildScalesGrid('',s.cat,ST.scaleId);} }
+  };
+}
+
+function applyScale(){
+  if(ST.tonicPc===null||!ST.scaleId){ST.scalePcs=null;return}
+  const sc=SCALE_DB.find(s=>s.id===ST.scaleId); ST.scalePcs=sc?new Set(sc.iv.map(i=>(ST.tonicPc+i)%12)):null;
+}
+
+function buildNoteChips(){
+  const grid=$('noteChipsGrid');grid.innerHTML=''; const notes=ST.flat?CHR_F:CHR_S;
+  notes.forEach((n,pc)=>{
+    const nat=isNat(pc),color=nColor(pc); const chip=mk('div','nchip'); chip.textContent=fmt(n);
+    if(ST.activeNotes.has(pc)){
+      chip.classList.add('on');
+      if(nat){chip.style.background=color;chip.style.boxShadow=`0 4px 12px ${color}66`}
+      else{chip.style.background='#1F212C';chip.style.borderColor=color;chip.style.color=color}
+    }
+    chip.addEventListener('click',()=>{ ST.activeNotes.has(pc)?ST.activeNotes.delete(pc):ST.activeNotes.add(pc); buildNoteChips();refreshFB(); });
+    grid.appendChild(chip);
+  });
+  $('allToggleChk').checked=ST.activeNotes.size===12;
+}
+
+function buildIntList(){
+  const list=$('intList');list.innerHTML='';
+  if(!ST.scalePcs||ST.tonicPc===null){
+    const empty=mk('div');empty.style.cssText='font-size:12px;color:var(--text3);padding:4px 0'; empty.textContent='Выберите тональность и лад'; list.appendChild(empty);return;
+  }
+  const sc=SCALE_DB.find(s=>s.id===ST.scaleId); if(!sc)return; const chr=ST.flat?CHR_F:CHR_S;
+  sc.iv.forEach((semitones,degIdx)=>{
+    const pc=(ST.tonicPc+semitones)%12; const color=nColor(pc); const item=mk('div','int-item'); const dot=mk('div','int-dot');
+    dot.style.background=isNat(pc)?color:'#1F212C'; dot.style.border=isNat(pc)?'none':`2px solid ${color}`;
+    const lbl=document.createTextNode(`${fmt(chr[pc])} — ${INT_NAMES[semitones]}`);
+    item.appendChild(dot);item.appendChild(lbl); list.appendChild(item);
+  });
+}
+
+function buildCatList(){
+  const list=$('scaleCats');list.innerHTML='';
+  CATS.forEach(cat=>{
+    const item=mk('div','cat-item'); if(cat===ST.activeCat)item.classList.add('active');
+    const ico=mk('span','cat-icon');ico.textContent=CAT_ICONS[cat]??'♪';
+    const lbl=document.createTextNode(cat); item.appendChild(ico);item.appendChild(lbl);
+    item.addEventListener('click',()=>{ ST.activeCat=cat;buildCatList();buildScalesGrid($('scaleSearchInp').value,cat); });
+    list.appendChild(item);
+  });
+}
+
+function buildScalesGrid(search='',cat='Основные',activeId=ST.scaleId){
+  const grid=$('scalesGrid');grid.innerHTML=''; const fl=search.toLowerCase();
+  const scales=SCALE_DB.filter(s=>{ if(s.cat!==cat)return false; if(fl&&!s.name.toLowerCase().includes(fl)&&!s.alt.toLowerCase().includes(fl))return false; return true; });
+  const INT_NAMES_SHORT=['1','b2','2','b3','3','4','b5','5','b6','6','b7','7'];
+
+  scales.forEach(s=>{
+    const card=mk('div','scale-card'); if(s.id===activeId)card.classList.add('active');
+    const nm=mk('div','sc-name');nm.textContent=s.name;
+    const form=mk('div','sc-formula');
+    INT_NAMES_SHORT.forEach((step,i)=>{
+      const inScale=s.iv.includes(i); const sp=mk('span','sc-step'+(inScale?' root':'')); sp.textContent=step;
+      if(!inScale)sp.style.opacity='.2'; form.appendChild(sp);
+    });
+    const desc=mk('div','sc-desc');desc.textContent=s.desc.slice(0,45)+(s.desc.length>45?'...':'');
+    card.appendChild(nm);card.appendChild(form);card.appendChild(desc);
+    card.addEventListener('click',()=>{
+      ST.scaleId=s.id; $('scaleQuickSel').value=s.id; applyScale();buildIntList();refreshFB(); buildScalesGrid(search,cat,s.id); buildScaleInfoPanel(s);
+    });
+    grid.appendChild(card);
+  });
+}
+
+function buildScaleInfoPanel(sc){
+  const panel=$('scaleInfoPanel'); if(!sc){panel.classList.remove('visible');return}
+  const chr=ST.flat?CHR_F:CHR_S; const rootName=ST.tonicPc!==null?fmt(chr[ST.tonicPc]):''; const title=rootName?`${sc.name} в ${rootName}`:sc.name;
+  const INT_DISP=['1','b2','2','b3','3','4','b5','5','b6','6','b7','7'];
+  const degClasses=['s-root','s-2','s-3','s-4','s-5','s-6','s-7'];
+  let formulaHtml='<div class="si-formula-row">';
+  sc.iv.forEach((sem,di)=>{ const cls=degClasses[di]??''; formulaHtml+=`<div class="si-step ${cls}">${INT_DISP[sem]}</div>`; }); formulaHtml+='</div>';
+  let notesHtml='';
+  if(ST.tonicPc!==null){
+    notesHtml='<div class="si-section-lbl">Ноты в ладе</div><div class="si-notes-row">';
+    sc.iv.forEach(sem=>{
+      const pc=(ST.tonicPc+sem)%12; const color=nColor(pc);const nat=isNat(pc); const cls=nat?'si-note-pill':'si-note-pill acc';
+      const style=nat?`background:${color};box-shadow:0 4px 10px ${color}66`:`border-color:${color};color:${color}`;
+      notesHtml+=`<div class="${cls}" style="${style}">${fmt(chr[pc])}</div>`;
+    }); notesHtml+='</div>';
+  }
+  const exHtml=sc.ex.map(e=>`<div class="si-ex-item">${e}</div>`).join('');
+  panel.innerHTML=`
+    <div class="si-title">${title}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">${sc.alt}</div>
+    <div class="si-section-lbl">Формула лада</div> ${formulaHtml} ${notesHtml}
+    <div class="si-section-lbl">Описание</div> <div class="si-desc">${sc.desc}</div>
+    <div class="si-section-lbl">Примеры</div> <div class="si-examples">${exHtml}</div>
+  `;
+  panel.classList.add('visible');
+}
+
+/* ================================================================ FRETBOARD */
+const INLAY=new Set([3,5,7,9,12,15,17,19,21,24]); const DBL=new Set([12,24]);
+function getOpenPc(rowIdx){ const ai=ST.numStrings-1-rowIdx; return n2pc(ST.tuning[ai]); }
+
+function refreshFB(){
+  const head=$('fb-head'),body=$('fb-body'); head.innerHTML='';body.innerHTML='';
+  const {numStrings,numFrets,flat,activeNotes,tonicPc,scalePcs,viewMode,showTonic}=ST; const chr=flat?CHR_F:CHR_S;
+  
+  const hRow=mk('tr','fb-head-row');
+  const thLabel=mk('th','th-open');thLabel.style.minWidth='48px';thLabel.textContent='';hRow.appendChild(thLabel);
+  const thOpen=mk('th','th-open');thOpen.textContent='0';hRow.appendChild(thOpen);
+  for(let f=1;f<=numFrets;f++){ const th=mk('th',INLAY.has(f)?'th-inlay':''); th.textContent=f;hRow.appendChild(th); }
+  head.appendChild(hRow);
+
+  for(let row=0;row<numStrings;row++){
+    const openPc=getOpenPc(row); if(openPc===-1)continue;
+    const tr=mk('tr','fb-string-row'); tr.dataset.si=row;
+    
+    const tdLabel=mk('td','tc-open-label'); tdLabel.style.height='60px';
+    const badge=makeOpenBadge(openPc,activeNotes,tonicPc,scalePcs,viewMode,showTonic);
+    tdLabel.appendChild(badge); tr.appendChild(tdLabel);
+    
+    const tdOpen=mk('td','tc-open'); tr.appendChild(tdOpen);
+
+    for(let f=1;f<=numFrets;f++){
+      const td=mk('td','tc-fret');
+      if(INLAY.has(f)){
+        const mid=Math.floor(numStrings/2); const isDbl=DBL.has(f);
+        if(!isDbl&&row===mid){ const wrap=mk('div','inlay-wrap'); wrap.appendChild(mk('div','inlay-dot'));td.appendChild(wrap); }
+        else if(isDbl&&(row===mid-1||row===mid+1)){ const wrap=mk('div','inlay-wrap'); wrap.appendChild(mk('div','inlay-dot'));td.appendChild(wrap); }
+      }
+      td.appendChild(makeNM(openPc,f,flat,activeNotes,tonicPc,scalePcs,viewMode,showTonic,chr));
+      tr.appendChild(td);
+    }
+    body.appendChild(tr);
+  }
+}
+
+function makeOpenBadge(openPc,activeNotes,tonicPc,scalePcs,viewMode,showTonic){
+  const nat=isNat(openPc),color=nColor(openPc);
+  const isTonic=tonicPc!==null&&openPc===tonicPc;
+  const inScale=scalePcs?scalePcs.has(openPc):null;
+
+  // Видимость управляется исключительно состоянием activeNotes, чтобы работали клики-переключатели везде
+  let visible = activeNotes.has(openPc);
+
+  const chr=ST.flat?CHR_F:CHR_S;
+  let label=fmt(chr[openPc]);
+  if(viewMode==='intervals'&&tonicPc!==null){ label=interval(tonicPc,openPc); }
+
+  const badge=mk('div',nat?'open-note-badge nat':'open-note-badge acc-badge acc');
+  badge.dataset.pc=openPc;
+  badge.classList.add('fb-clickable'); // Всегда кликабельно
+  badge.textContent=label;
+  badge.style.setProperty('--nc', color);
+  
+  if(nat){badge.style.background=color;}
+
+  // Окрашиваем не попавшие в гамму ноты в серый, но оставляем кликабельными
+  if(scalePcs&&!inScale) badge.classList.add('dim-out');
+  if(isTonic&&showTonic&&scalePcs) badge.classList.add('tonic-ring');
+
+  // Если нота отключена (отжата), прячем её через специальный класс (с сохранением кликабельности)
+  if(!visible) badge.classList.add('hidden');
+
+  return badge;
+}
+
+function makeNM(openPc,fret,flat,activeNotes,tonicPc,scalePcs,viewMode,showTonic,chr){
+  const pc=(openPc+fret)%12;
+  const noteName=chr[pc];
+  const nat=isNat(pc),color=nColor(pc);
+  const isTonic=tonicPc!==null&&pc===tonicPc;
+  const inScale=scalePcs?scalePcs.has(pc):null;
+
+  // Универсальная проверка видимости по активным нотам
+  let visible = activeNotes.has(pc);
+
+  let label=fmt(noteName);
+  if(viewMode==='intervals'&&tonicPc!==null){ label=interval(tonicPc,pc); }
+
+  const m=mk('div','nm');
+  m.dataset.pc=pc;
+  m.classList.add('fb-clickable'); // Всегда кликабельно
+  m.style.setProperty('--nc',color);
+  m.textContent=label;
+
+  if(viewMode==='intervals') m.classList.add('iv-mode');
+
+  if(nat){
+    m.classList.add('nat'); m.style.background=color;
+  }else{
+    m.classList.add('acc');
+  }
+
+  // Окрашиваем не попавшие в гамму ноты в серый
+  if(scalePcs&&!inScale) m.classList.add('dim-out');
+  if(isTonic&&showTonic&&scalePcs) m.classList.add('tonic-ring');
+
+  // Если нота отключена (отжата), прячем её (с сохранением кликабельности)
+  if(!visible) m.classList.add('hidden');
+
+  return m;
+}
+
+function initMainTabs(){
+  document.querySelectorAll('.main-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active'); const isKF=tab.dataset.tab==='kf';
+      $('fb-panel').style.display=isKF?'none':'flex'; $('scales-panel').style.display=isKF?'none':'flex';
+      const kfp=$('kf-panel'); kfp.classList.toggle('active',isKF);
+      const mainEl=document.getElementById('main'); if(mainEl){mainEl.style.overflow=isKF?'hidden':'auto';}
+      if(isKF){buildKFPiano();buildKFFret();renderKFResults();}
+    });
+  });
+}
+
+/* Универсальный клик по грифу: работает во всех режимах и на включенных, и на скрытых (призрачных) нотах */
+function enableFBClicks(){
+  $('fb-body').addEventListener('click',e=>{
+    const nm=e.target.closest('.nm.fb-clickable, .open-note-badge.fb-clickable');
+    if(nm){ 
+      const pc=parseInt(nm.dataset.pc); 
+      if(!isNaN(pc)){
+        ST.activeNotes.has(pc)?ST.activeNotes.delete(pc):ST.activeNotes.add(pc);
+        buildNoteChips();
+        refreshFB();
+      } 
+    }
+  });
+}
+
+let activeTunDropdown=null;
+function closeTunDropdown(){ if(activeTunDropdown){activeTunDropdown.remove();activeTunDropdown=null;} }
+function buildTunDropdown(arrEl,ai){
+  if(activeTunDropdown&&activeTunDropdown._ai===ai){closeTunDropdown();return;} closeTunDropdown();
+  const notes=ST.flat?CHR_F:CHR_S; const dd=mk('div','tun-dropdown'); dd._ai=ai;
+  const rowEl=arrEl.closest('.tun-row'); const rect=rowEl.getBoundingClientRect();
+  dd.style.position='fixed'; dd.style.top=(rect.bottom+8)+'px'; dd.style.left=rect.left+'px';
+  notes.forEach((n,pc)=>{
+    const item=mk('div','tun-dd-item'); item.textContent=fmt(n);
+    if(n2pc(ST.tuning[ai])===pc)item.classList.add('cur');
+    item.addEventListener('click',e=>{ e.stopPropagation(); ST.tuning[ai]=n; closeTunDropdown(); buildTunGrid();refreshFB();buildKFFret(); });
+    dd.appendChild(item);
+  });
+  document.body.appendChild(dd); activeTunDropdown=dd;
+  setTimeout(()=>{ document.addEventListener('mousedown',e=>{ if(!dd.contains(e.target)&&e.target!==arrEl)closeTunDropdown(); },{once:true}); },0);
+}
+
+/* ================================================================ KEY FINDER */
+const KF={ selectedPcs:new Set(), inputMode:'piano' };
+const PIANO_WHITES=[{pc:0,n:'C'},{pc:2,n:'D'},{pc:4,n:'E'},{pc:5,n:'F'},{pc:7,n:'G'},{pc:9,n:'A'},{pc:11,n:'B'}];
+const PIANO_BLACKS=[{pc:1,leftOffset:35,n:'C♯'},{pc:3,leftOffset:87,n:'D♯'},{pc:6,leftOffset:191,n:'F♯'},{pc:8,leftOffset:243,n:'G♯'},{pc:10,leftOffset:295,n:'A♯'}];
+
+function buildKFPiano(){
+  const wrap=$('kf-piano-wrap'); wrap.innerHTML=''; const notes=ST.flat?CHR_F:CHR_S;
+  const container=mk('div','kf-piano'); const inner=mk('div','kf-piano-wrap');
+  PIANO_WHITES.forEach(({pc,n})=>{
+    const key=mk('div','piano-white'); if(KF.selectedPcs.has(pc))key.classList.add('on');
+    const lbl=mk('div','pw-label'); lbl.textContent=fmt(notes[pc]); key.appendChild(lbl);
+    key.addEventListener('click',()=>{ KF.selectedPcs.has(pc)?KF.selectedPcs.delete(pc):KF.selectedPcs.add(pc); buildKFPiano();buildKFFret();renderKFResults();renderKFSelectedNotes(); });
+    inner.appendChild(key);
+  });
+  container.appendChild(inner);
+  PIANO_BLACKS.forEach(({pc,leftOffset,n})=>{
+    const key=mk('div','piano-black'); key.style.left=leftOffset+'px'; if(KF.selectedPcs.has(pc))key.classList.add('on');
+    const lbl=mk('div','pb-label'); lbl.textContent=ST.flat?fmt(CHR_F[pc]):fmt(CHR_S[pc]); key.appendChild(lbl);
+    key.addEventListener('click',e=>{ e.stopPropagation(); KF.selectedPcs.has(pc)?KF.selectedPcs.delete(pc):KF.selectedPcs.add(pc); buildKFPiano();buildKFFret();renderKFResults();renderKFSelectedNotes(); });
+    container.appendChild(key);
+  });
+  wrap.appendChild(container);
+}
+
+function buildKFFret(){
+  const wrap=$('kf-fret-wrap'); wrap.innerHTML=''; const chr=ST.flat?CHR_F:CHR_S; const numStrings=ST.numStrings; const tuning=ST.tuning; const numFrets=24;
+  const table=mk('table'); table.id='kf-fb-table'; table.style.borderCollapse='separate'; table.style.borderSpacing='0';
+  const thead=mk('thead'); const tbody=mk('tbody'); const hRow=mk('tr','fb-head-row');
+  const thL=mk('th','th-open');thL.style.minWidth='44px';hRow.appendChild(thL); const thO=mk('th','th-open');thO.textContent='0';hRow.appendChild(thO);
+  for(let f=1;f<=numFrets;f++){ const th=mk('th',INLAY.has(f)?'th-inlay':'');th.textContent=f;hRow.appendChild(th); }
+  thead.appendChild(hRow);
+  for(let row=0;row<numStrings;row++){
+    const ai=numStrings-1-row; const openPc=n2pc(tuning[ai]); if(openPc===-1)continue;
+    const tr=mk('tr','fb-string-row'); tr.dataset.si=row;
+    const tdL=mk('td','tc-open-label'); tdL.style.height='52px';
+    const badge=mk('div',isNat(openPc)?'open-note-badge kf-badge nat':'open-note-badge acc-badge kf-badge acc');
+    badge.textContent=fmt(chr[openPc]); badge.dataset.pc=openPc; badge.style.setProperty('--nc',nColor(openPc));
+    if(isNat(openPc)){badge.style.background=nColor(openPc);} 
+    badge.classList.toggle('kf-selected',KF.selectedPcs.has(openPc)); badge.classList.toggle('kf-unselected',!KF.selectedPcs.has(openPc));
+    
+    // Добавление кликабельности для подсказок поиска
+    badge.addEventListener('click',()=>{ const pc=parseInt(badge.dataset.pc); KF.selectedPcs.has(pc)?KF.selectedPcs.delete(pc):KF.selectedPcs.add(pc); buildKFPiano();buildKFFret();renderKFResults();renderKFSelectedNotes(); });
+    tdL.appendChild(badge); tr.appendChild(tdL);
+    const tdOpen=mk('td','tc-open');tr.appendChild(tdOpen);
+    
+    for(let f=1;f<=numFrets;f++){
+      const td=mk('td','tc-fret'); const pc=(openPc+f)%12; const color=nColor(pc);const nat=isNat(pc);
+      const nm=mk('div',nat?'nm nat kf-nm':'nm acc kf-nm'); nm.dataset.pc=pc; nm.textContent=fmt(chr[pc]); nm.style.setProperty('--nc',color);
+      if(nat){nm.style.background=color} 
+      nm.classList.toggle('kf-selected',KF.selectedPcs.has(pc)); nm.classList.toggle('kf-unselected',!KF.selectedPcs.has(pc));
+      
+      // Добавление кликабельности
+      nm.addEventListener('click',()=>{ const p=parseInt(nm.dataset.pc); KF.selectedPcs.has(p)?KF.selectedPcs.delete(p):KF.selectedPcs.add(p); buildKFPiano();buildKFFret();renderKFResults();renderKFSelectedNotes(); });
+      td.appendChild(nm); tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  table.appendChild(thead);table.appendChild(tbody); const scrollWrap=mk('div','kf-fb-wrap'); scrollWrap.appendChild(table); wrap.appendChild(scrollWrap);
+}
+
+function renderKFSelectedNotes(){
+  const container=$('kf-sel-notes'); container.innerHTML='';
+  if(KF.selectedPcs.size===0){ const e=mk('span','kf-sel-empty');e.textContent='Нажмите на клавиши или гриф';container.appendChild(e);return; }
+  const chr=ST.flat?CHR_F:CHR_S; const sorted=[...KF.selectedPcs].sort((a,b)=>a-b);
+  sorted.forEach(pc=>{
+    const pill=mk('div','kf-sel-pill'); pill.textContent=fmt(chr[pc]); pill.style.background=nColor(pc); pill.title='Нажмите, чтобы убрать';
+    pill.addEventListener('click',()=>{ KF.selectedPcs.delete(pc); buildKFPiano();buildKFFret(); renderKFSelectedNotes();renderKFResults(); });
+    container.appendChild(pill);
+  });
+}
+
+function searchKeyFinder(){
+  if(KF.selectedPcs.size===0)return[]; const chr=ST.flat?CHR_F:CHR_S; const selected=KF.selectedPcs; const results=[];
+  SCALE_DB.forEach(sc=>{
+    for(let tonic=0;tonic<12;tonic++){
+      const scalePcsArr=sc.iv.map(i=>(tonic+i)%12); const scaleSet=new Set(scalePcsArr);
+      const matched=[...selected].filter(p=>scaleSet.has(p)); const missing=scalePcsArr.filter(p=>!selected.has(p)); const extra=[...selected].filter(p=>!scaleSet.has(p));
+      const pct=Math.round(matched.length/Math.max(selected.size,sc.iv.length)*100);
+      if(pct>=50){ results.push({sc,tonic,pct,matched,missing,extra, name:`${fmt(chr[tonic])} ${sc.name}`, mode:sc.alt, isCommon:(sc.id==='ionian'||sc.id==='aeolian') }); }
+    }
+  });
+  results.sort((a,b)=>b.pct-a.pct||(a.missing.length-b.missing.length)); return results;
+}
+
+function renderKFResults(){
+  const container=$('kf-results'); container.innerHTML=''; const chr=ST.flat?CHR_F:CHR_S;
+  if(KF.selectedPcs.size===0){ const msg=mk('div','kf-empty-msg'); msg.textContent='Выберите ноты на пианино или грифе, чтобы найти тональность'; container.appendChild(msg);return; }
+  const results=searchKeyFinder();
+  if(results.length===0){ const msg=mk('div','kf-empty-msg'); msg.textContent='Нет подходящих вариантов (попробуйте выбрать другие ноты)'; container.appendChild(msg);return; }
+
+  function renderCard(r){
+    const card=mk('div','kf-result-card'); const top=mk('div','kf-result-top');
+    const name=mk('div','kf-result-name');name.textContent=r.name; const mode=mk('div','kf-result-mode');mode.textContent=r.mode;
+    const pctB=mk('div','kf-pct-badge'+(r.pct===100?' perfect':''));pctB.textContent=r.pct+'%';
+    top.appendChild(name);top.appendChild(mode);top.appendChild(pctB); card.appendChild(top);
+    const noteRow=mk('div','kf-note-row');
+    if(r.matched.length){ const lbl=mk('span','kf-note-label');lbl.textContent='✓';noteRow.appendChild(lbl); r.matched.forEach(pc=>{const t=mk('span','kf-note-tag kf-note-match');t.textContent=fmt(chr[pc]);noteRow.appendChild(t);}); }
+    if(r.missing.length){ const lbl=mk('span','kf-note-label');lbl.textContent='−';noteRow.appendChild(lbl); r.missing.forEach(pc=>{const t=mk('span','kf-note-tag kf-note-missing');t.textContent=fmt(chr[pc]);noteRow.appendChild(t);}); }
+    if(r.extra.length){ const lbl=mk('span','kf-note-label');lbl.textContent='+';noteRow.appendChild(lbl); r.extra.forEach(pc=>{const t=mk('span','kf-note-tag kf-note-extra');t.textContent=fmt(chr[pc]);noteRow.appendChild(t);}); }
+    card.appendChild(noteRow); return card;
+  }
+
+  const perfect=results.filter(r=>r.pct===100); const partial=results.filter(r=>r.pct<100);
+  if(perfect.length){
+    const maj100=perfect.filter(r=>r.sc.id==='ionian'); const min100=perfect.filter(r=>r.sc.id==='aeolian'); const other100=perfect.filter(r=>r.sc.id!=='ionian'&&r.sc.id!=='aeolian');
+    if(maj100.length){ const sec=mk('div','kf-results-section'); const title=mk('div','kf-results-title');title.textContent='Мажор (100%)'; sec.appendChild(title); maj100.forEach(r=>sec.appendChild(renderCard(r))); container.appendChild(sec); }
+    if(min100.length){ const sec=mk('div','kf-results-section'); const title=mk('div','kf-results-title');title.textContent='Минор (100%)'; sec.appendChild(title); min100.forEach(r=>sec.appendChild(renderCard(r))); container.appendChild(sec); }
+    if(other100.length){
+      const colWrap=mk('div'); const toggle=mk('div','kf-collapse-toggle'); const arrow=mk('span','kf-collapse-arrow');arrow.textContent='▼'; const label=mk('span');label.textContent=`Другие лады 100% (${other100.length})`;
+      toggle.appendChild(arrow);toggle.appendChild(label); const body=mk('div','kf-collapse-body'); other100.forEach(r=>body.appendChild(renderCard(r)));
+      toggle.addEventListener('click',()=>{ const isOpen=body.classList.contains('open'); body.classList.toggle('open',!isOpen); arrow.classList.toggle('open',!isOpen); });
+      colWrap.appendChild(toggle);colWrap.appendChild(body); container.appendChild(colWrap);
+    }
+  } else {
+    const topPct=results[0].pct; const topResults=results.filter(r=>r.pct===topPct);
+    const majTop=topResults.filter(r=>r.sc.id==='ionian'); const minTop=topResults.filter(r=>r.sc.id==='aeolian'); const otherTop=topResults.filter(r=>r.sc.id!=='ionian'&&r.sc.id!=='aeolian'); const rest=results.filter(r=>r.pct<topPct);
+    function makeCollapsible(titleTxt,items){
+      const colWrap=mk('div'); const toggle=mk('div','kf-collapse-toggle'); const arrow=mk('span','kf-collapse-arrow');arrow.textContent='▼'; const lbl=mk('span');lbl.textContent=titleTxt+' ('+items.length+')';
+      toggle.appendChild(arrow);toggle.appendChild(lbl); const body=mk('div','kf-collapse-body'); items.forEach(r=>body.appendChild(renderCard(r)));
+      toggle.addEventListener('click',()=>{ const isOpen=body.classList.contains('open'); body.classList.toggle('open',!isOpen); arrow.classList.toggle('open',!isOpen); });
+      colWrap.appendChild(toggle);colWrap.appendChild(body); return colWrap;
+    }
+    if(majTop.length){ const sec=mk('div','kf-results-section'); const title=mk('div','kf-results-title');title.textContent='Мажор ('+topPct+'%)'; sec.appendChild(title); majTop.forEach(r=>sec.appendChild(renderCard(r))); container.appendChild(sec); }
+    if(minTop.length){ const sec=mk('div','kf-results-section'); const title=mk('div','kf-results-title');title.textContent='Минор ('+topPct+'%)'; sec.appendChild(title); minTop.forEach(r=>sec.appendChild(renderCard(r))); container.appendChild(sec); }
+    if(otherTop.length) container.appendChild(makeCollapsible('Другие лады '+topPct+'%',otherTop));
+    if(rest.length) container.appendChild(makeCollapsible('Другие возможные варианты',rest));
+  }
+  if(perfect.length && partial.length){
+    const colWrap=mk('div'); const toggle=mk('div','kf-collapse-toggle'); const arrow=mk('span','kf-collapse-arrow');arrow.textContent='▼'; const label=mk('span');label.textContent=`Другие возможные варианты (${partial.length})`;
+    toggle.appendChild(arrow);toggle.appendChild(label); const body=mk('div','kf-collapse-body'); partial.forEach(r=>body.appendChild(renderCard(r)));
+    toggle.addEventListener('click',()=>{ const isOpen=body.classList.contains('open'); body.classList.toggle('open',!isOpen); arrow.classList.toggle('open',!isOpen); });
+    colWrap.appendChild(toggle); colWrap.appendChild(body); container.appendChild(colWrap);
+  }
+}
+
+function initKFInputBtns(){
+  $('kf-clear-btn').addEventListener('click',()=>{ KF.selectedPcs.clear(); buildKFPiano();buildKFFret(); renderKFSelectedNotes();renderKFResults(); });
+}
+
+function resetAll(){
+  ST.numStrings=6;ST.tuning=['E','A','D','G','B','E'];ST.flat=false; ST.activeNotes=new Set([0,1,2,3,4,5,6,7,8,9,10,11]);
+  ST.tonicPc=null;ST.scaleId=null;ST.scalePcs=null; ST.showTonic=true;ST.viewMode='notes';ST.activeCat='Основные'; KF.selectedPcs.clear();
+  document.querySelectorAll('.inst-btn').forEach(b=>b.classList.toggle('active',b.dataset.s==='6'));
+  document.querySelectorAll('.notate-btn').forEach(b=>b.classList.toggle('active',b.dataset.m==='sharps'));
+  document.querySelectorAll('.fb-view-btn').forEach(b=>b.classList.toggle('active',b.dataset.vm==='notes'));
+  $('allToggleChk').checked=true; $('tonicToggleChk').checked=true; $('scaleSearchInp').value='';
+  buildPresetSel();buildTunGrid();buildTonicSel();buildScaleQuickSel();
+  buildNoteChips();buildIntList();buildCatList();buildScalesGrid('','Основные',null); buildScaleInfoPanel(null);
+  document.querySelectorAll('.main-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='grif'));
+  $('fb-panel').style.display='flex';$('scales-panel').style.display='flex';$('kf-panel').classList.remove('active');
+  refreshFB();
+}
+
+init();
+</script>
+</body>
+</html>
